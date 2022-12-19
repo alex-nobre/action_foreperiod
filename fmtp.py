@@ -24,6 +24,13 @@ import scipy.ndimage
 import pandas as pd
 
 
+from itertools import chain, repeat
+
+def makeGoNoGoprop(trialPerBlock):
+    ls = [int(0.8*trialPerBlock), int(0.2*trialPerBlock)]
+    res = list(chain.from_iterable(repeat(j, times = i) for i, j in zip(ls, ['go', 'nogo'])))
+    return res
+
 
 class fMTP(object):  
     """
@@ -356,8 +363,10 @@ class FPgonogo(FPexp):
         # Alter the blocks in such a way that half are go and half are nogo
         if relax == 0:  
             assert trs.size % 2 == 0
-            gng = np.tile(['go', 'nogo'], trs.size/2)
-            self.full_exp = zip(trs, gng)
+            #gng = np.tile(['go', 'nogo'], int(trs.size/2))
+            gng = makeGoNoGoprop(trs.size)
+            gng = np.array(gng).flatten()
+            self.full_exp = list(zip(trs, gng))
             np.random.shuffle(self.full_exp)
             while self.full_exp[0][1] == 'nogo':
                 np.random.shuffle(self.full_exp)
